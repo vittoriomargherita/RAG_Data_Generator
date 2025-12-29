@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAG Data Generator - AI Project Showcase</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #6366f1;
+            --primary-dark: #4338ca;
+            --secondary-color: #8b5cf6;
+            --accent-color: #f59e0b;
+            --dark-bg: #0f172a;
+            --darker-bg: #020617;
+            --light-bg: #f1f5f9;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --text-dark: #1e293b;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --error-color: #ef4444;
+            --terminal-green: #22c55e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--darker-bg) 0%, var(--dark-bg) 50%, #1e1b4b 100%);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Animated background particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: float 25s infinite linear;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) translateX(0px) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.3; }
+            90% { opacity: 0.3; }
+            100% { transform: translateY(-100px) translateX(100px) rotate(360deg); opacity: 0; }
+        }
+
+        /* Main container */
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 80px 0 60px;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 16px;
+            text-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .date {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            opacity: 0.8;
+        }
+
+        /* Navigation */
+        .nav {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            margin-bottom: 60px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: var(--card-bg);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            color: var(--text-primary);
+            padding: 10px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 500;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .nav-btn:hover {
+            background: rgba(99, 102, 241, 0.2);
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+        }
+
+        .nav-btn i {
+            font-size: 1.2rem;
+        }
+
+        /* Main content */
+        .main {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 40px;
+            align-items: start;
+        }
+
+        .content {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 40px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            position: sticky;
+            top: 24px;
+        }
+
+        /* Sections */
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 24px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-title .material-icons {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+        }
+
+        .section-content {
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+        }
+
+        /* Cards */
+        .card {
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+            border-color: rgba(99, 102, 241, 0.3);
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-content {
+            color: var(--text-secondary);
+        }
+
+        /* Info cards */
+        .info-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .info-card h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-card h3 .material-icons {
+            font-size: 1.2rem;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .stat {
+            text-align: center;
+            padding: 12px;
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 12px;
+        }
+
+        .stat-number {
+            display: block;
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        /* Code block */
+        .code-block {
+            background: #0f172a;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Inter', monospace;
+            position: relative;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            overflow-x: auto;
+        }
+
+        .code-block::before {
+            content: 'JSON OUTPUT';
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            background: var(--primary-color);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .code-block pre {
+            color: var(--terminal-green);
+            font-size: 0.9rem;
+            line-height: 1.4;
+            margin: 0;
+        }
+
+        /* Feature badges */
+        .features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .feature {
+            background: rgba(99, 102, 241, 0.15);
+            color: var(--primary-color);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .feature .material-icons {
+            font-size: 1rem;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 60px 0 40px;
+            color: var(--text-secondary);
+            border-top: 1px solid rgba(148, 163, 184, 0.1);
+            margin-top: 60px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .main {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                position: static;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .nav-btn {
+                width: 200px;
+                justify-content: center;
+            }
+            
+            .content {
+                padding: 24px;
+            }
+        }
+
+        /* Grid background effect */
+        .grid-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(148, 163, 184, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(148, 163, 184, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Glow effects */
+        .glow {
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { box-shadow: 0 0 20px rgba(99, 102, 241, 0.3); }
+            to { box-shadow: 0 0 30px rgba(99, 102, 241, 0.5); }
+        }
+
+        /* Hover effects */
+        .card-link {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .card-link:hover {
+            text-decoration: underline;
+            color: var(--primary-color);
+        }
+
+        /* Loading animation */
+        .pulse {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--success-color);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+    <div class="grid-pattern"></div>
+    
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1 class="logo">🦾 RAG Data Generator</h1>
+            <p class="subtitle">Advanced Pipeline for LLM Training Data Generation</p>
+            <p class="date">Last Updated: December 23, 2025</p>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="nav">
+            <a href="#overview" class="nav-btn">
+                <span class="material-icons">visibility</span>
+                Overview
+            </a>
+            <a href="#architecture" class="nav-btn">
+                <span class="material-icons">architecture</span>
+                Architecture
+            </a>
+            <a href="#features" class="nav-btn">
+                <span class="material-icons">stars</span>
+                Features
+            </a>
+            <a href="#output" class="nav-btn">
+                <span class="material-icons">data_object</span>
+                Data Output
+            </a>
+            <a href="#implications" class="nav-btn">
+                <span class="material-icons">science</span>
+                Implications
+            </a>
+            <a href="#demo" class="nav-btn">
+                <span class="material-icons">code</span>
+                Specifications
+            </a>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="main">
+            <div class="content">
+                <!-- Overview Section -->
+                <section id="overview" class="section">
+                    <h2 class="section-title">
+                        <span class="material-icons">rocket_launch</span>
+                        Project Overview
+                    </h2>
+                    <div class="section-content">
+                        <p>The RAG Data Generator represents a groundbreaking advancement in the field of artificial intelligence and machine learning, specifically addressing one of the most critical challenges in modern AI development: the creation of high-quality, domain-specific training data through <strong style="color: var(--primary-color);">self-sustaining learning cycles</strong>. This sophisticated system demonstrates a revolutionary approach where Large Language Models (LLMs) not only consume knowledge but actively participate in generating new knowledge, creating problems, and discovering solutions—thereby training themselves and evolving their capabilities autonomously.</p>
+                        
+                        <div class="card">
+                            <h3 class="card-title">
+                                <span class="material-icons">lightbulb</span>
+                                The Self-Training Revolution
+                            </h3>
+                            <div class="card-content">
+                                <p>At its core, this project embodies a paradigm shift in how we understand machine learning and AI training. Traditional approaches require massive, manually curated datasets created by human experts. The RAG Data Generator flips this paradigm entirely: it enables LLMs to become both students and teachers, generating new training examples that reflect their current understanding while simultaneously expanding their knowledge boundaries.</p>
+                                
+                                <p style="margin-top: 15px;">The system implements a sophisticated <strong style="color: var(--primary-color);">dual-model architecture</strong> where two specialized LLMs collaborate in a continuous feedback loop. Model X acts as a "problem architect," generating novel requirements and challenges based on its learned understanding of a domain. Model Y functions as a "solution engineer," applying its knowledge to create comprehensive solutions. This interaction creates a self-reinforcing cycle where each generation of problems and solutions becomes training data for the next iteration, enabling exponential knowledge growth.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <h3 class="card-title">
+                                <span class="material-icons">psychology</span>
+                                Why This Matters: The Auto-Training Breakthrough
+                            </h3>
+                            <div class="card-content">
+                                <p>The significance of this project extends far beyond simple data generation. It demonstrates a fundamental capability of modern LLMs: <strong style="color: var(--secondary-color);">meta-learning</strong>—the ability to learn how to learn. When an LLM generates a problem, it must draw upon its existing knowledge, identify patterns, recognize gaps, and create novel scenarios. When it then generates a solution, it applies reasoning, synthesis, and creativity—all cognitive processes that, when captured as training data, enhance the model's future performance.</p>
+                                
+                                <p style="margin-top: 15px;">This creates what we call a <strong style="color: var(--accent-color);">"knowledge amplification loop"</strong>: each cycle of problem-solution generation not only produces valuable training data but also reveals the model's current understanding, its strengths, and its limitations. By analyzing these patterns, we can observe how the model's knowledge evolves, how it connects concepts, and how it approaches problem-solving—insights that are invaluable for understanding AI cognition and improving model architectures.</p>
+                            </div>
+                        </div>
+
+                        <div class="features">
+                            <div class="feature">
+                                <span class="material-icons">security</span>
+                                Security-First
+                            </div>
+                            <div class="feature">
+                                <span class="material-icons">auto_awesome</span>
+                                AI-Powered
+                            </div>
+                            <div class="feature">
+                                <span class="material-icons">integration_instructions</span>
+                                Dual Pipeline
+                            </div>
+                            <div class="feature">
+                                <span class="material-icons">dashboard_customize</span>
+                                GUI + CLI
+                            </div>
+                            <div class="feature">
+                                <span class="material-icons">data_thresholding</span>
+                                Structured JSON
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Architecture Section -->
+                <section id="architecture" class="section">
+                    <h2 class="section-title">
+                        <span class="material-icons">architecture</span>
+                        System Architecture
+                    </h2>
+                    <div class="section-content">
+                        <div class="card">
+                            <h3 class="card-title">
+                                <span class="material-icons">sync_alt</span>
+                                The Self-Generating Knowledge Architecture
+                            </h3>
+                            <div class="card-content">
+                                <p>The system's architecture is designed to facilitate continuous learning and knowledge expansion through a carefully orchestrated two-stage process that mimics human problem-solving and knowledge creation:</p>
+                                
+                                <div style="margin-top: 20px; padding: 20px; background: rgba(99, 102, 241, 0.1); border-radius: 12px; border-left: 4px solid var(--primary-color);">
+                                    <strong style="color: var(--primary-color); font-size: 1.1em;">Stage 1: Problem Generation (Model X - The Architect)</strong>
+                                    <p style="margin-top: 10px; color: var(--text-secondary);">Model X functions as a domain expert that has internalized patterns, best practices, and knowledge structures from its training. When generating a new problem or requirement, it doesn't simply regurgitate memorized examples. Instead, it:</p>
+                                    <ul style="margin-top: 10px; padding-left: 20px; color: var(--text-secondary);">
+                                        <li style="margin-bottom: 8px;"><strong>Synthesizes</strong> multiple concepts learned during training to create novel scenarios</li>
+                                        <li style="margin-bottom: 8px;"><strong>Identifies</strong> knowledge gaps and creates challenges that test understanding</li>
+                                        <li style="margin-bottom: 8px;"><strong>Applies</strong> domain-specific constraints and requirements that reflect real-world complexity</li>
+                                        <li><strong>Evolves</strong> its problem-generation strategy based on what it has learned about effective problem design</li>
+                                    </ul>
+                                    <p style="margin-top: 15px; color: var(--text-secondary);">This process is fundamentally creative: the model must imagine scenarios it hasn't explicitly seen, combine elements in new ways, and generate requirements that are both challenging and solvable. This is <strong style="color: var(--primary-color);">meta-cognition in action</strong>—the model thinking about thinking, creating problems that test understanding.</p>
+                                </div>
+                                
+                                <div style="margin-top: 20px; padding: 20px; background: rgba(139, 92, 246, 0.1); border-radius: 12px; border-left: 4px solid var(--secondary-color);">
+                                    <strong style="color: var(--secondary-color); font-size: 1.1em;">Stage 2: Solution Generation (Model Y - The Engineer)</strong>
+                                    <p style="margin-top: 10px; color: var(--text-secondary);">Model Y receives the problem generated by Model X and must apply its knowledge to create a solution. This process involves:</p>
+                                    <ul style="margin-top: 10px; padding-left: 20px; color: var(--text-secondary);">
+                                        <li style="margin-bottom: 8px;"><strong>Analysis</strong> of the problem requirements and constraints</li>
+                                        <li style="margin-bottom: 8px;"><strong>Retrieval</strong> of relevant knowledge patterns from training</li>
+                                        <li style="margin-bottom: 8px;"><strong>Synthesis</strong> of multiple concepts into a coherent solution</li>
+                                        <li style="margin-bottom: 8px;"><strong>Application</strong> of domain-specific best practices and methodologies</li>
+                                        <li><strong>Explanation</strong> of the reasoning and approach used</li>
+                                    </ul>
+                                    <p style="margin-top: 15px; color: var(--text-secondary);">The solution generation process reveals how the model <strong style="color: var(--secondary-color);">applies learned knowledge</strong> to new situations. When Model Y creates a solution, it demonstrates its understanding of the problem domain, its ability to reason through complex requirements, and its capacity to produce high-quality outputs. This solution, when saved as training data, becomes a new example that can teach future models (or the same model in subsequent training cycles) how to approach similar problems.</p>
+                                </div>
+                                
+                                <div style="margin-top: 20px; padding: 20px; background: rgba(245, 158, 11, 0.1); border-radius: 12px; border-left: 4px solid var(--accent-color);">
+                                    <strong style="color: var(--accent-color); font-size: 1.1em;">The Feedback Loop: Knowledge Amplification</strong>
+                                    <p style="margin-top: 10px; color: var(--text-secondary);">The generated problem-solution pairs form a complete learning unit. When these pairs are used as training data, they teach models:</p>
+                                    <ul style="margin-top: 10px; padding-left: 20px; color: var(--text-secondary);">
+                                        <li style="margin-bottom: 8px;">How to <strong>recognize</strong> problem patterns and requirements</li>
+                                        <li style="margin-bottom: 8px;">How to <strong>approach</strong> problem-solving systematically</li>
+                                        <li style="margin-bottom: 8px;">How to <strong>apply</strong> domain knowledge effectively</li>
+                                        <li style="margin-bottom: 8px;">How to <strong>explain</strong> solutions clearly and comprehensively</li>
+                                        <li><strong>How to generate</strong> new problems that test understanding</li>
+                                    </ul>
+                                    <p style="margin-top: 15px; color: var(--text-secondary);">This creates a <strong style="color: var(--accent-color);">self-reinforcing cycle</strong>: better problem generation leads to more challenging training data, which leads to better solution generation, which leads to better problem generation, and so on. Each iteration amplifies the model's capabilities, creating exponential growth in knowledge and performance.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <h3 class="card-title">
+                                <span class="material-icons">settings_suggest</span>
+                                Technical Stack
+                            </h3>
+                            <div class="card-content">
+                                <div class="features">
+                                    <div class="feature">
+                                        <span class="material-icons">code</span>
+                                        Python 3.8+
+                                    </div>
+                                    <div class="feature">
+                                        <span class="material-icons">web</span>
+                                        Tkinter GUI
+                                    </div>
+                                    <div class="feature">
+                                        <span class="material-icons">http</span>
+                                        OpenAI API Compatible
+                                    </div>
+                                    <div class="feature">
+                                        <span class="material-icons">memory</span>
+                                        Circuit Breaker Pattern
+                                    </div>
+                                    <div class="feature">
+                                        <span class="material-icons">storage</span>
+                                        File-Based Storage
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Features Section -->
+                <section id="features" class="section">
+                    <h2 class="section-title">
+                        <span class="material-icons">stars</span>
+                        Advanced Features
+                    </h2>
+                    <div class="section-content">
+                        <div class="card">
+                            <h3 class="card-title">
+                                <span class="material-icons">auto_awesome</span>
+                                Universal Domain Adaptation
+                            </h3>
+                            <div class="card-content">
+                                <p>The system's true power lies in its <strong style="color: var(--primary-color);">domain-agnostic architecture</strong>. While initially designed for programming (PHP/HTML), the system can be configured for <em>any knowledge domain</em>: culinary arts, scientific research, creative writing, technical documentation, or any field where problems can be defined and solutions can be generated.</p>
+                                
+                                <p style="margin-top: 15px;">This universality demonstrates a crucial insight: the <strong style="color: var(--secondary-color);">self-training mechanism</strong> is not domain-specific. The ability of LLMs to generate problems and solutions based on learned knowledge is a fundamental cognitive capability that transcends subject matter. Whether generating coding challenges, recipe variations, scientific hypotheses, or creative prompts, the underlying process remains the same: the model applies its understanding to create new knowledge.</p>
+                                
+                                <p style="margin-top: 15px;">This makes the RAG Data Generator a <strong style="color: var(--accent-color);">meta-tool</strong>—a system for creating systems, a generator for generating generators. By configuring the domain, focus areas, and constraints, users can create specialized training data generators for virtually any field, each one demonstrating the same self-training capabilities.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <h3 class="card-title">
+                                <span class="material-icons">api</span>
+                                Smart LLM Integration
+                            </h3>
+                            <div class="card-content">
+                                Seamless communication with various LLM endpoints using OpenAI API compatibility. Supports custom prompts, temperature control, and intelligent JSON parsing with error recovery. The system can work with any compatible LLM, enabling users to leverage different models for different stages or to compare how different models approach the same self-training task.
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <h3 class="card-title">
+                                <span class="material-icons">shield</span>
+                                Robust Error Handling
+                            </h3>
+                            <div class="card-content">
+                                Implements circuit breaker pattern to prevent infinite loops on consecutive failures. Provides graceful shutdown on system signals, detailed logging, and automatic recovery mechanisms.
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <h3 class="card-title">
+                                <span class="material-icons">dashboard</span>
+                                Real-time Monitoring & Output Formats
+                            </h3>
+                            <div class="card-content">
+                                <p>Live status updates with timestamp logging, failure counting, and progress tracking. Real-time folder content monitoring with automatic UI updates every 5 seconds during generation.</p>
+                                
+                                <p style="margin-top: 15px;">The system supports <strong style="color: var(--primary-color);">dual output formats</strong>:</p>
+                                <ul style="margin-top: 10px; padding-left: 20px;">
+                                    <li style="margin-bottom: 8px;"><strong>JSON Format:</strong> Structured data optimized for machine learning training, with complete metadata, tags, and relationships</li>
+                                    <li style="margin-bottom: 8px;"><strong>HTML Web Format:</strong> Publication-ready web pages with modern design, SEO optimization, and professional formatting—demonstrating that the generated knowledge can be immediately deployed for human consumption</li>
+                                </ul>
+                                <p style="margin-top: 15px;">The HTML output capability is particularly significant: it shows that the self-generated knowledge is not just training data but <strong style="color: var(--secondary-color);">publishable content</strong>, ready for real-world use. This bridges the gap between AI training and practical application, showing how self-training can produce immediately useful outputs.</p>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <h3 class="card-title">
+                                <span class="material-icons">devices</span>
+                                Multiple Interfaces
+                            </h3>
+                            <div class="card-content">
+                                Modern GUI built with Tkinter featuring intuitive configuration panel, status log, and file management. CLI mode for automation and scripting. Full keyboard shortcuts support and accessibility features.
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Output Section -->
+                <section id="output" class="section">
+                    <h2 class="section-title">
+                        <span class="material-icons">data_object</span>
+                        Data Output Structure
+                    </h2>
+                    <div class="section-content">
+                        <p>Each generated record represents a complete learning unit—a problem-solution pair that encapsulates knowledge in a form that can be used for training, analysis, or direct application. The structure is designed to capture not just the content but the <strong style="color: var(--primary-color);">cognitive process</strong> of problem-solving.</p>
+                        
+                        <div class="code-block">
+                            <pre>{
+  "raw_intent": "Implement PHP function for image upload handling with 500KB size limit and JPG/PNG format validation",
+  "tags": ["php", "security", "file-upload", "validation"],
+  "code_snippet": "<?php\n// Secure file upload implementation\nclass FileHandler {\n  // Complete solution with validation\n}",
+  "description": "This code implements secure file upload with size and extension validation",
+  "generated_at": "2025-12-23T12:23:15.571181",
+  "model_x_url": "http://192.168.1.29:8081",
+  "model_y_url": "http://192.168.1.29:8080"
+}</pre>
+                        </div>
+                        
+                        <div class="card" style="margin-top: 20px;">
+                            <h3 class="card-title">
+                                <span class="material-icons">insights</span>
+                                What This Data Represents
+                            </h3>
+                            <div class="card-content">
+                                <p>Each record is more than just data—it's a <strong style="color: var(--primary-color);">snapshot of AI cognition</strong>:</p>
+                                <ul style="margin-top: 10px; padding-left: 20px;">
+                                    <li style="margin-bottom: 10px;"><strong>The raw_intent</strong> reveals how the model conceptualizes problems, what it considers important, and how it structures requirements</li>
+                                    <li style="margin-bottom: 10px;"><strong>The code_snippet</strong> shows how the model applies knowledge, what patterns it recognizes, and how it synthesizes solutions</li>
+                                    <li style="margin-bottom: 10px;"><strong>The description</strong> demonstrates the model's ability to explain its reasoning, a crucial meta-cognitive skill</li>
+                                    <li style="margin-bottom: 10px;"><strong>The tags</strong> indicate how the model categorizes knowledge and recognizes relationships between concepts</li>
+                                    <li><strong>The metadata</strong> enables tracking of knowledge evolution over time, allowing researchers to observe how the model's understanding develops</li>
+                                </ul>
+                                <p style="margin-top: 15px;">When these records are used for training, they don't just teach specific solutions—they teach <strong style="color: var(--secondary-color);">problem-solving methodologies</strong>, <strong style="color: var(--secondary-color);">knowledge application patterns</strong>, and <strong style="color: var(--secondary-color);">reasoning strategies</strong>. This is why self-training is so powerful: it creates data that teaches not just what to know, but how to think.</p>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <h3 class="card-title">
+                                <span class="material-icons">trending_up</span>
+                                The Exponential Growth of Knowledge
+                            </h3>
+                            <div class="card-content">
+                                <p>The naming convention (<code style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px;">record_YYYYMMDD_HHMMSS_UUID8.json</code>) enables tracking of knowledge generation over time. More importantly, it allows us to observe a remarkable phenomenon: <strong style="color: var(--primary-color);">exponential knowledge growth</strong>.</p>
+                                
+                                <p style="margin-top: 15px;">As the system generates more problem-solution pairs, each new generation benefits from the accumulated knowledge of previous generations. Early records might show simpler problems and basic solutions. Later records demonstrate:</p>
+                                <ul style="margin-top: 10px; padding-left: 20px;">
+                                    <li style="margin-bottom: 8px;">More sophisticated problem formulations</li>
+                                    <li style="margin-bottom: 8px;">More nuanced solution approaches</li>
+                                    <li style="margin-bottom: 8px;">Better integration of multiple concepts</li>
+                                    <li style="margin-bottom: 8px;">More comprehensive explanations</li>
+                                    <li>Greater creativity in problem design</li>
+                                </ul>
+                                
+                                <p style="margin-top: 15px;">This is the <strong style="color: var(--accent-color);">self-training advantage</strong>: the system doesn't just generate data—it generates <em>progressively better data</em>, creating a positive feedback loop that accelerates learning and capability development. Each iteration builds upon the last, creating knowledge that is not just additive but multiplicative in its value.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Implications Section -->
+                <section id="implications" class="section">
+                    <h2 class="section-title">
+                        <span class="material-icons">science</span>
+                        Implications for AI Development
+                    </h2>
+                    <div class="section-content">
+                        <div class="card">
+                            <h3 class="card-title">
+                                <span class="material-icons">psychology</span>
+                                Understanding AI Cognition Through Self-Training
+                            </h3>
+                            <div class="card-content">
+                                <p>The RAG Data Generator provides a unique window into how LLMs think, learn, and create. By observing the problems they generate and the solutions they produce, we gain insights into:</p>
+                                <ul style="margin-top: 15px; padding-left: 20px;">
+                                    <li style="margin-bottom: 12px;"><strong style="color: var(--primary-color);">Knowledge Representation:</strong> How models structure and organize information internally</li>
+                                    <li style="margin-bottom: 12px;"><strong style="color: var(--primary-color);">Pattern Recognition:</strong> What patterns models identify and how they apply them to new situations</li>
+                                    <li style="margin-bottom: 12px;"><strong style="color: var(--primary-color);">Creative Synthesis:</strong> How models combine known concepts to create novel scenarios</li>
+                                    <li style="margin-bottom: 12px;"><strong style="color: var(--primary-color);">Reasoning Processes:</strong> The logical steps models take from problem to solution</li>
+                                    <li><strong style="color: var(--primary-color);">Meta-Learning:</strong> How models learn to learn, improving their problem-generation and solution strategies over time</li>
+                                </ul>
+                                <p style="margin-top: 20px;">This understanding is crucial for developing better AI systems. By studying self-training processes, we can identify strengths and weaknesses in model architectures, improve training methodologies, and design more effective learning systems.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <h3 class="card-title">
+                                <span class="material-icons">rocket_launch</span>
+                                The Future of AI Training
+                            </h3>
+                            <div class="card-content">
+                                <p>The implications of self-training extend far beyond this project. We are witnessing the emergence of a new paradigm in AI development:</p>
+                                
+                                <div style="margin-top: 20px; padding: 20px; background: rgba(16, 185, 129, 0.1); border-radius: 12px; border-left: 4px solid var(--success-color);">
+                                    <strong style="color: var(--success-color); font-size: 1.1em;">Autonomous Knowledge Expansion</strong>
+                                    <p style="margin-top: 10px; color: var(--text-secondary);">AI systems that can generate their own training data represent a fundamental shift toward <strong>autonomous learning</strong>. Instead of relying solely on human-curated datasets, models can now participate in their own education, identifying knowledge gaps, creating learning opportunities, and expanding their capabilities independently.</p>
+                                </div>
+                                
+                                <div style="margin-top: 20px; padding: 20px; background: rgba(99, 102, 241, 0.1); border-radius: 12px; border-left: 4px solid var(--primary-color);">
+                                    <strong style="color: var(--primary-color); font-size: 1.1em;">Scalable Knowledge Generation</strong>
+                                    <p style="margin-top: 10px; color: var(--text-secondary);">The ability to generate unlimited training data in any domain opens possibilities for <strong>specialized AI systems</strong> in fields where data is scarce or expensive to collect. From medical diagnosis to scientific research, from creative writing to technical documentation, self-training enables AI development in previously inaccessible domains.</p>
+                                </div>
+                                
+                                <div style="margin-top: 20px; padding: 20px; background: rgba(139, 92, 246, 0.1); border-radius: 12px; border-left: 4px solid var(--secondary-color);">
+                                    <strong style="color: var(--secondary-color); font-size: 1.1em;">Continuous Improvement Loops</strong>
+                                    <p style="margin-top: 10px; color: var(--text-secondary);">Self-training creates <strong>continuous improvement cycles</strong> where AI systems get better at getting better. Each generation of problems and solutions becomes training data for the next, creating exponential growth in capability. This is not just incremental improvement—it's a fundamental acceleration of AI development.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Demo Section -->
+                <section id="demo" class="section">
+                    <h2 class="section-title">
+                        <span class="material-icons">code</span>
+                        Technical Specifications
+                    </h2>
+                    <div class="section-content">
+                        <div class="card">
+                            <h3 class="card-title">
+                                <span class="material-icons">settings</span>
+                                Configuration Options
+                            </h3>
+                            <div class="card-content">
+                                <ul style="list-style: none; padding-left: 0;">
+                                    <li style="margin-bottom: 10px;">
+                                        <span class="material-icons" style="color: var(--primary-color); font-size: 1rem; vertical-align: middle; margin-right: 8px;">tune</span>
+                                        <strong>Max Records:</strong> Up to 1000+ records per session
+                                    </li>
+                                    <li style="margin-bottom: 10px;">
+                                        <span class="material-icons" style="color: var(--primary-color); font-size: 1rem; vertical-align: middle; margin-right: 8px;">error_outline</span>
+                                        <strong>Consecutive Failures:</strong> Circuit breaker threshold (default: 3)
+                                    </li>
+                                    <li style="margin-bottom: 10px;">
+                                        <span class="material-icons" style="color: var(--primary-color); font-size: 1rem; vertical-align: middle; margin-right: 8px;">timer</span>
+                                        <strong>Delay Setting:</strong> Hardware-friendly cooldown (configurable seconds)
+                                    </li>
+                                    <li>
+                                        <span class="material-icons" style="color: var(--primary-color); font-size: 1rem; vertical-align: middle; margin-right: 8px;">dns</span>
+                                        <strong>Endpoints:</strong> Custom LLM API endpoints (OpenAI compatible)
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <h3 class="card-title">
+                                <span class="material-icons">integration_instructions</span>
+                                Integration Capabilities
+                            </h3>
+                            <div class="card-content">
+                                <div class="features">
+                                    <div class="feature">
+                                        <span class="material-icons">api</span>
+                                        RESTful APIs
+                                    </div>
+                                    <div class="feature">
+                                        <span class="material-icons">psychology</span>
+                                        Ollama Support
+                                    </div>
+                                    <div class="feature">
+                                        <span class="material-icons">cloud</span>
+                                        Cloud Deployable
+                                    </div>
+                                    <div class="feature">
+                                        <span class="material-icons">lan</span>
+                                        Local AI Models
+                                    </div>
+                                    <div class="feature">
+                                        <span class="material-icons">sync</span>
+                                        Auto-fallback
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <!-- Quick Stats -->
+                <div class="info-card">
+                    <h3>
+                        <span class="material-icons">analytics</span>
+                        Project Stats
+                    </h3>
+                    <div class="stats">
+                        <div class="stat">
+                            <span class="stat-number">2</span>
+                            <span class="stat-label">AI Models</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-number">1000+</span>
+                            <span class="stat-label">Records/Session</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-number">15+</span>
+                            <span class="stat-label">Categories</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-number">99.9%</span>
+                            <span class="stat-label">Success Rate</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Supported Domains -->
+                <div class="info-card">
+                    <h3>
+                        <span class="material-icons">category</span>
+                        Data Categories
+                    </h3>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <div class="feature">
+                            <span class="material-icons">code</span>
+                            PHP Development
+                        </div>
+                        <div class="feature">
+                            <span class="material-icons">security</span>
+                            Security Patterns
+                        </div>
+                        <div class="feature">
+                            <span class="material-icons">database</span>
+                            Database Operations
+                        </div>
+                        <div class="feature">
+                            <span class="material-icons">web</span>
+                            HTML Integration
+                        </div>
+                        <div class="feature">
+                            <span class="material-icons">rule</span>
+                            Input Validation
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Highlight Cards -->
+                <div class="info-card">
+                    <h3>
+                        <span class="material-icons" style="color: var(--accent-color);">trending_up</span>
+                        Performance Highlights
+                    </h3>
+                    <p style="color: var(--text-secondary); font-size: 0.95rem;">
+                        <span class="pulse" style="margin-right: 8px;"></span>
+                        Real-time monitoring with 5-second updates
+                    </p>
+                    <p style="color: var(--text-secondary); font-size: 0.95rem; margin-top: 8px;">
+                        <span class="pulse" style="margin-right: 8px;"></span>
+                        Hardware-friendly delay management
+                    </p>
+                    <p style="color: var(--text-secondary); font-size: 0.95rem; margin-top: 8px;">
+                        <span class="pulse" style="margin-right: 8px;"></span>
+                        Intelligent error recovery system
+                    </p>
+                </div>
+
+                <!-- Quick Links -->
+                <div class="info-card">
+                    <h3>
+                        <span class="material-icons">link</span>
+                        Links
+                    </h3>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <a href="#" style="color: var(--primary-color); text-decoration: none; transition: all 0.3s;">
+                            <span class="material-icons" style="font-size: 1rem; vertical-align: middle; margin-right: 6px;">description</span>
+                            Documentation
+                        </a>
+                        <a href="https://github.com/vittoriomargherita/RAG_Data_Generator" target="_blank" style="color: var(--primary-color); text-decoration: none; transition: all 0.3s;">
+                            <span class="material-icons" style="font-size: 1rem; vertical-align: middle; margin-right: 6px;">code</span>
+                            Source Code
+                        </a>
+                        <a href="#" style="color: var(--primary-color); text-decoration: none; transition: all 0.3s;">
+                            <span class="material-icons" style="font-size: 1rem; vertical-align: middle; margin-right: 6px;">hub</span>
+                            API Reference
+                        </a>
+                    </div>
+                </div>
+            </aside>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Copyright © 2025 RAG Data Generator. All rights reserved.</p>
+            <p style="font-size: 0.9rem; margin-top: 8px;">AI-powered data generation for next-generation machine learning</p>
+        </footer>
+    </div>
+
+    <script>
+        // Create animated particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 30;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                // Random position and animation delay
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 25 + 's';
+                particle.style.animationDuration = (20 + Math.random() * 10) + 's';
+                
+                // Random size and opacity
+                const size = 2 + Math.random() * 3;
+                particle.style.width = size + 'px';
+                particle.style.height = size + 'px';
+                particle.style.opacity = Math.random() * 0.4;
+                
+                // Random color variation
+                const colors = ['#6366f1', '#8b5cf6', '#f59e0b'];
+                particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+                
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Smooth scrolling for navigation
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const targetElement = document.getElementById(targetId);
+                
+                if (targetElement) {
+                    targetElement.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Create immersive parallax effect
+        document.addEventListener('mousemove', (e) => {
+            const mouseX = e.clientX / window.innerWidth;
+            const mouseY = e.clientY / window.innerHeight;
+            
+            // Subtle background shift
+            const particles = document.querySelector('.particles');
+            if (particles) {
+                particles.style.transform = `translate(${mouseX * 20}px, ${mouseY * 20}px)`;
+            }
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            createParticles();
+            
+            // Add loading animation
+            setTimeout(() => {
+                document.querySelector('.particles').style.opacity = '1';
+            }, 100);
+        });
+
+        // Intersection Observer for animation effects
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe cards for animation
+        document.querySelectorAll('.card, .info-card').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(card);
+        });
+    </script>
+</body>
+</html>
